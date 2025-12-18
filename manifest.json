@@ -1,10 +1,14 @@
 {
-  "name": "CSS Editor",
-  "description": "Edit CSS directly from Spotify",
+  "name": "Stylizer",
+  "description": " 🧩 An actively maintained and improved fork of FlafyDev's spotify-css-editor. ",
   "preview": "preview/icon.png",
-  "main": "dist/css-editor.js",
+  "main": "dist/stylizer.js",
   "readme": "README.md",
   "authors": [
+    {
+      "name": "woidzero",
+      "url": "https://github.com/woidzero"
+    },
     {
       "name": "FlafyDev",
       "url": "https://github.com/FlafyDev"
