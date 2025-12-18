@@ -1,4 +1,5 @@
-import React from "react";
+const { React } = Spicetify;
+
 import { SettingsSection } from "spcr-settings";
 import styles from "./css-editor.module.scss";
 import AceEditor from "react-ace";

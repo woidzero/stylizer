@@ -1,5 +1,5 @@
-import ReactDOM from "react-dom";
-import React from "react";
+// oxlint-disable no-unused-vars
+const { React, ReactDOM } = Spicetify;
 import CSSEditor from "./css-editor";
 
 async function main() {
