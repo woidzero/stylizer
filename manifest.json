@@ -1,14 +1,22 @@
-{
-  "name": "Stylizer",
-  "description": "🔮 Customize Spotify's look in real time.",
-  "preview": "assets/icon.png",
-  "main": "dist/stylizer.js",
-  "readme": "README.md",
-  "authors": [
-    {
-      "name": "woidzero",
-      "url": "https://github.com/woidzero"
-    }
-  ],
-  "tags": ["albumoftheyear", "aoty", "rym", "score", "rateyourmusic"]
-}
+[
+  {
+    "name": "Stylizer",
+    "description": "🔮 Customize Spotify's look in real time.",
+    "preview": "assets/icon.png",
+    "main": "dist/stylizer.js",
+    "readme": "README.md",
+    "authors": [
+      {
+        "name": "woidzero",
+        "url": "https://github.com/woidzero"
+      }
+    ],
+    "tags": [
+      "styles",
+      "css",
+      "developer",
+      "scss",
+      "theme"
+    ]
+  }
+]
