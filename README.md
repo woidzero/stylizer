@@ -1,13 +1,13 @@
 <div align=center>
 
-<img src="./assets/logo.svg" width=100 height=100 />
+<img src="./assets/logo.png" width=100 height=100 />
 
 <h1>Stylizer</h1>
 
-<p>🧩 Customize Spotify's look in the real time.</p>
+<p>🔮 Customize Spotify's look in real time.</p>
 
 <p align="center">
-  <img alt="preview" src="./assets/preview1.png" width=400>
+  <img alt="preview" src="./assets/preview.jpg" width=400>
 </p>
 
 </div>
