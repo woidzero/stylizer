@@ -1,19 +1,37 @@
-// oxlint-disable no-unused-vars
 const { React, ReactDOM } = Spicetify;
-import CSSEditor from "./css-editor";
+import { Editor } from "./components/Editor";
+
+import { KEYS, setupSettings, showChangelog } from "./utils/settings";
+import { __VERSION__, __CHANGELOG__ } from "./generated/meta";
 
 async function main() {
-  let mainViewContainer: HTMLElement | null = null;
-  while (true) {
-    mainViewContainer = document?.getElementById("main");
+  let body;
 
-    if (Spicetify?.Platform?.History?.listen && mainViewContainer) break;
+  while (true) {
+    body = document.querySelector("body");
+
+    if (Spicetify?.Platform?.History && body) break;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  const cssEditorContainer = document.createElement("div");
-  mainViewContainer.appendChild(cssEditorContainer);
-  ReactDOM.render(<CSSEditor />, cssEditorContainer);
+  const settings = setupSettings();
+  settings.pushSettings();
+
+  let editorRoot = document.getElementById("stylizer__root");
+  if (!editorRoot) {
+    editorRoot = document.createElement("div");
+    editorRoot.id = "stylizer__root";
+
+    body.prepend(editorRoot);
+
+    ReactDOM.render(<Editor />, editorRoot);
+    console.debug("[stylizer] editor rendered");
+  }
+
+  if (settings.getFieldValue(KEYS.VERSION) !== __VERSION__) {
+    showChangelog();
+    settings.setFieldValue(KEYS.VERSION, __VERSION__);
+  }
 }
 
 export default main;

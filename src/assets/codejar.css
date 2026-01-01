@@ -1,0 +1,35 @@
+.codejar-wrap {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.codejar-linenumbers-inner-wrap {
+  background: var(--spice-player) !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  position: relative !important;
+  left: 0 !important;
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+.codejar-linenumbers {
+  width: 40px !important;
+  height: 100% !important;
+  overflow-y: hidden !important;
+  background-color: var(--spice-player) !important;
+  color: var(--essential-subdued) !important;
+  padding: 10px 8px 10px 0 !important;
+  text-align: right !important;
+  user-select: none !important;
+  border-radius: 0 !important;
+}
+
+.codejar-linenumber {
+  color: var(--essential-subdued) !important;
+  mix-blend-mode: normal !important;
+}

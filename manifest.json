@@ -1,6 +1,6 @@
 {
   "name": "Stylizer",
-  "description": " 🧩 An actively maintained and improved fork of FlafyDev's spotify-css-editor. ",
+  "description": "🧩 Customize Spotify's look in real time.",
   "preview": "preview/icon.png",
   "main": "dist/stylizer.js",
   "readme": "README.md",
@@ -8,10 +8,6 @@
     {
       "name": "woidzero",
       "url": "https://github.com/woidzero"
-    },
-    {
-      "name": "FlafyDev",
-      "url": "https://github.com/FlafyDev"
     }
   ]
 }
