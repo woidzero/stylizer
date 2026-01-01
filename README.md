@@ -6,9 +6,7 @@
 
 <p>🔮 Customize Spotify's look in real time.</p>
 
-<p align="center">
-  <img alt="preview" src="./assets/preview.jpg" width=400>
-</p>
+<img alt="preview" src="./assets/preview.jpg" width=400>
 
 </div>
 
