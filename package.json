@@ -26,7 +26,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "knip": "^5.78.0",
-    "marked": "^17.0.1",
+    "marked": "^18.0.0",
     "prettier": "^3.7.4",
     "spicetify-creator": "^1.0.17",
     "typescript": "^5.9.3"
