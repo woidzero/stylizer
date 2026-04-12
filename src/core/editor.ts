@@ -1,10 +1,9 @@
-// oxlint-disable no-unused-vars
 const {
   React: { useState, useRef, useMemo },
 } = Spicetify;
 
 import { Settings } from "spcr-settings";
-import { KEYS, DEFAULTS, setupSettings } from "@/utils/settings";
+import { KEYS, DEFAULTS, setupSettings } from "./settings";
 
 /**
  * Hook to manage settings persistence

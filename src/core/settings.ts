@@ -1,4 +1,4 @@
-import { __CHANGELOG__, __VERSION__ } from "@/generated/meta";
+import { __CHANGELOG__, __VERSION__ } from "../generated/meta";
 import { Settings } from "spcr-settings";
 
 export const THEMES: Record<string, string> = {
@@ -32,14 +32,6 @@ export const KEYS = {
   EDITOR_THEME: "editor.theme",
 } as const;
 
-export const showChangelog = (): void => {
-  Spicetify.PopupModal.display({
-    title: "[Stylizer] Changelog",
-    content: __CHANGELOG__,
-    isLarge: true,
-  });
-};
-
 export const setupSettings = (): Settings => {
   const settings = new Settings("Stylizer", "stylizer");
 
@@ -50,19 +42,8 @@ export const setupSettings = (): Settings => {
   settings.Hidden(KEYS.EDITOR_WIDTH, String(DEFAULTS.EDITOR_SIZE.width));
   settings.Hidden(KEYS.EDITOR_HEIGHT, String(DEFAULTS.EDITOR_SIZE.height));
   settings.Hidden(KEYS.EDITOR_LINE_HEIGHT, String(DEFAULTS.EDITOR_LINE_HEIGHT));
-  settings.Input(
-    KEYS.EDITOR_THEME,
-    "Editor Theme",
-    DEFAULTS.EDITOR_THEME,
-    "Editor Theme",
-  );
-  settings.Input(
-    KEYS.EDITOR_TAB_SIZE,
-    "Editor Tab size",
-    String(DEFAULTS.EDITOR_TAB_SIZE),
-    "Keybind",
-    "Default to F12",
-  );
+  settings.Input(KEYS.EDITOR_THEME, "Editor Theme", DEFAULTS.EDITOR_THEME, "Editor Theme");
+  settings.Input(KEYS.EDITOR_TAB_SIZE, "Editor Tab size", String(DEFAULTS.EDITOR_TAB_SIZE), "Keybind", "Default to F12");
   settings.Input(
     KEYS.EDITOR_FONT_FAMILY,
     "Font Family",
@@ -87,3 +68,6 @@ export const setupSettings = (): Settings => {
 
   return settings;
 };
+
+
+export const settings = setupSettings();

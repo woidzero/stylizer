@@ -1,10 +1,12 @@
 const { React, ReactDOM } = Spicetify;
 import { Editor } from "./components/Editor";
 
-import { KEYS, setupSettings, showChangelog } from "./utils/settings";
+import { KEYS, settings } from "./core/settings";
+import { showChangelog } from "./core/utils";
+
 import { __VERSION__, __CHANGELOG__ } from "./generated/meta";
 
-async function main() {
+export default async function main() {
   let body;
 
   while (true) {
@@ -14,7 +16,6 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  const settings = setupSettings();
   settings.pushSettings();
 
   let editorRoot = document.getElementById("stylizer__root");
@@ -34,4 +35,4 @@ async function main() {
   }
 }
 
-export default main;
+main();

@@ -1,8 +1,8 @@
-// oxlint-disable no-unused-vars
 const { React } = Spicetify;
 const { useState, useRef, useEffect } = React;
 
-import { showChangelog } from "@/utils/settings";
+import { showChangelog } from "../core/utils";
+
 import css from "../assets/stylizer.module.scss";
 
 export const EditorTabbar = ({ state, actions }: _EditorProps) => {
@@ -114,6 +114,7 @@ export const EditorTabbar = ({ state, actions }: _EditorProps) => {
           </div>
         )}
       </div>
+
       <div className={css.editor_tabbar_item}>
         <span onClick={() => toggleMenu("help")}>Help</span>
 

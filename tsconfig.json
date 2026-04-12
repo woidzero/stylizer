@@ -4,7 +4,7 @@
     "jsx": "react",
     "module": "commonjs",
     "resolveJsonModule": true,
-    "outDir": "dist",
+    "rootDir": "src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -12,15 +12,6 @@
     "typeRoots": ["./node_modules/@types"],
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"]
-    }
   },
   "include": ["./src/**/*.*"],
   "exclude": [

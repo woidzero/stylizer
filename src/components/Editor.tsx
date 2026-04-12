@@ -11,12 +11,14 @@ import "prismjs/components/prism-css";
 import { EditorHeader } from "./EditorHeader";
 import { EditorTabbar } from "./EditorTabbar";
 
-import { useEditorSettings, useEditorState } from "@hooks/editor";
+import { useEditorSettings, useEditorState } from "../core/editor";
 
-import { toPx, parsePx } from "@utils/css";
-import { registerTheme } from "@utils/theme";
+import { toPx, parsePx } from "../core/utils";
+import { registerTheme } from "../core/theme";
 
 import css from "../assets/stylizer.module.scss";
+
+// @ts-ignore
 import "../assets/codejar.css";
 
 export const Editor = () => {

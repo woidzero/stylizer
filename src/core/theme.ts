@@ -1,4 +1,4 @@
-import { THEMES } from "./settings";
+import { THEMES } from "../core/settings";
 
 export function registerTheme(name: string) {
   const theme: string = THEMES[name];
