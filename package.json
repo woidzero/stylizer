@@ -25,7 +25,7 @@
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "knip": "^5.78.0",
+    "knip": "^6.6.1",
     "marked": "^17.0.1",
     "prettier": "^3.7.4",
     "spicetify-creator": "^1.0.17",
