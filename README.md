@@ -25,7 +25,7 @@
 Open Windows command prompt and paste this:
 
 ```bash
-powershell -c "irm https://raw.githubusercontent.com/woidzero/stylizer/refs/heads/master/install.bat | iex"
+powershell -c "irm https://raw.githubusercontent.com/woidzero/stylizer/refs/heads/main/install.bat | iex"
 ```
 
 ### Spicetify Marketplace
