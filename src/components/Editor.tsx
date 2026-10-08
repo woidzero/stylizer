@@ -1,274 +1,173 @@
 const { React } = Spicetify;
-const { useRef, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
-import Draggable from "react-draggable";
-import { CodeJar } from "codejar";
-import { withLineNumbers } from "codejar-linenumbers";
+import { EditorView, basicSetup } from "codemirror";
+import { keymap } from "@codemirror/view";
 
-import Prism from "prismjs";
-import "prismjs/components/prism-css";
+import { css as cssLang } from "@codemirror/lang-css";
+import { indentWithTab } from "@codemirror/commands";
+import { oneDark } from "@codemirror/theme-one-dark";
+
+import { useEditorSettings, useEditorState } from "../core/editor";
+import { getEditorExtensions } from "../core/extensions";
+import { compileScss } from "../core/compiler";
 
 import { EditorHeader } from "./EditorHeader";
 import { EditorTabbar } from "./EditorTabbar";
 
-import { useEditorSettings, useEditorState } from "../core/editor";
-
-import { toPx, parsePx } from "../core/utils";
-import { registerTheme } from "../core/theme";
+import { PiPPortal, usePiPWindow } from "./PiPPortal";
 
 import css from "../assets/stylizer.module.scss";
-
-// @ts-ignore
-import "../assets/codejar.css";
 
 export const Editor = () => {
   const settings = useEditorSettings();
   const { state, actions, styles } = useEditorState(settings);
+  const { pipWindow } = usePiPWindow();
 
-  const containerRef = useRef(null);
-  const editorRef = useRef(null);
-  const dragRef = useRef(null);
-  const jarRef = useRef(null);
-  const gutterRef = useRef(null);
+  const isInternalChange = useRef(false);
 
-  const positionX = parsePx(state.position.x);
-  const positionY = parsePx(state.position.y);
-  const width = parsePx(state.size.width);
-  const height = parsePx(state.size.height);
+  const [containerEl, setContainerEl] = useState(null);
+  const viewRef = useRef(null);
+
+  const [compiledCss, setCompiledCss] = useState("");
 
   useEffect(() => {
-    if (!editorRef.current) return;
-    registerTheme(styles.theme);
+    let isCurrent = true;
 
-    const highlight = withLineNumbers((editor: HTMLElement) => {
-      const code = editor.textContent || "";
-      editor.innerHTML = Prism.highlight(code, Prism.languages.css, "css");
+    const processCode = async () => {
+      const { css: resultCss } = await compileScss(state.code);
+
+      if (isCurrent) {
+        setCompiledCss(resultCss);
+      }
+    };
+
+    const timer = setTimeout(processCode, 150);
+    return () => {
+      isCurrent = false;
+      clearTimeout(timer);
+    };
+  }, [state.code]);
+
+  useEffect(() => {
+    if (!state.isVisible || !containerEl) return;
+
+    const view = new EditorView({
+      doc: state.code,
+      extensions: [
+        basicSetup,
+        cssLang(),
+        oneDark,
+        keymap.of([indentWithTab]),
+        ...getEditorExtensions(),
+        EditorView.theme({
+          "&": {
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            width: "100%",
+            borderRadius: "12px",
+          },
+          ".cm-scroller": {
+            borderRadius: "12px",
+            overflow: "auto",
+            flex: 1
+          },
+        }),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            isInternalChange.current = true;
+            actions.updateCode(update.state.doc.toString());
+          }
+        }),
+      ],
+      parent: containerEl,
     });
 
-    const jar = CodeJar(editorRef.current, highlight, {
-      tab: "\t",
-      indentOn: /[{([]$/,
-      spellcheck: false,
-      catchTab: true,
-      preserveIdent: true,
-      addClosing: true,
-      history: true,
-    });
-
-    jarRef.current = jar;
-
-    if (state.code) jar.updateCode(state.code);
-    jar.onUpdate(actions.updateCode);
-
-    setTimeout(() => {
-      const gutter = editorRef.current?.parentElement?.querySelector(
-        ".codejar-linenumbers",
-      );
-      if (gutter instanceof HTMLDivElement) gutterRef.current = gutter;
-    }, 100);
+    viewRef.current = view;
 
     return () => {
-      jar.destroy();
-      jarRef.current = null;
-      gutterRef.current = null;
+      view.destroy();
+      viewRef.current = null;
     };
-  }, []);
+  }, [state.isVisible, containerEl]);
 
   useEffect(() => {
-    if (jarRef.current && editorRef.current) {
-      const currentCode = editorRef.current.textContent || "";
+    if (isInternalChange.current) {
+      isInternalChange.current = false;
+      return;
+    }
+
+    if (viewRef.current) {
+      const currentCode = viewRef.current.state.doc.toString();
       if (currentCode !== state.code) {
-        jarRef.current.updateCode(state.code);
+        viewRef.current.dispatch({
+          changes: { from: 0, to: currentCode.length, insert: state.code },
+        });
       }
     }
   }, [state.code]);
 
   useEffect(() => {
-    if (!editorRef.current) return;
-
-    const handleScroll = () => {
-      if (editorRef.current && gutterRef.current) {
-        gutterRef.current.scrollTop = editorRef.current.scrollTop;
-      }
-    };
-
-    const editor = editorRef.current;
-    editor.addEventListener("scroll", handleScroll);
-
-    return () => {
-      editor.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.style.fontSize = styles.font.size;
-      editorRef.current.style.fontFamily = styles.font.family;
-      editorRef.current.style.tabSize = String(styles.tabSize);
-      editorRef.current.style.lineHeight = styles.lineHeight;
-    }
-  }, [styles.font.size, styles.font.family, styles.tabSize, styles.lineHeight]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === state.toggleKey) {
+    const handleWindowKeyDown = (e: KeyboardEvent) => {
+      if (e.key === state.toggleKey || e.code === state.toggleKey) {
         e.preventDefault();
+        e.stopPropagation();
         actions.toggle();
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state.toggleKey, actions]);
 
-  const handleResizeMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startWidth = width;
-    const startHeight = height;
-
-    const onMouseMove = (ev: MouseEvent) => {
-      const newWidth = Math.max(300, startWidth + ev.clientX - startX);
-      const newHeight = Math.max(200, startHeight + ev.clientY - startY);
-
-      actions.updateSize({
-        width: toPx(newWidth),
-        height: toPx(newHeight),
-      });
-    };
-
-    const onMouseUp = () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  };
-
-  useEffect(() => {
-    const wrap = editorRef.current?.parentElement;
-    if (!wrap) return;
-
-    const handleScroll = () => {
-      if (gutterRef.current) {
-        gutterRef.current.scrollTop = wrap.scrollTop;
-        console.debug(1);
+    const handlePiPKeyDown = (e: KeyboardEvent) => {
+      if (e.key === state.toggleKey || e.code === state.toggleKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        pipWindow?.close();
       }
     };
 
-    wrap.addEventListener("scroll", handleScroll);
-    return () => wrap.removeEventListener("scroll", handleScroll);
-  }, []);
+    const handleToggle = () => actions.toggle();
 
-  useEffect(() => {
-    const nodes: HTMLElement[] = [];
-    let el = editorRef.current as HTMLElement | null;
+    window.addEventListener("stylizer:toggle", handleToggle);
+    window.addEventListener("keydown", handleWindowKeyDown, { capture: true });
 
-    while (el) {
-      nodes.push(el);
-      el = el.parentElement;
+    if (pipWindow) {
+      pipWindow.addEventListener("keydown", handlePiPKeyDown, { capture: true });
     }
 
-    const handlers = nodes.map((node, i) => {
-      const h = () => console.log("scroll on", i, node.className);
-      node.addEventListener("scroll", h);
-      return { node, h };
-    });
-
     return () => {
-      handlers.forEach(({ node, h }) => node.removeEventListener("scroll", h));
+      window.removeEventListener("stylizer:toggle", handleToggle);
+      window.removeEventListener("keydown", handleWindowKeyDown, { capture: true });
+
+      if (pipWindow) {
+        pipWindow.removeEventListener("keydown", handlePiPKeyDown, { capture: true });
+      }
     };
-  }, []);
+  }, [state.toggleKey, actions, pipWindow]);
 
   return (
-    <div
-      className={css.stylizer}
-      style={
-        {
-          "--editor-width":
-            typeof state.size.width === "string"
-              ? state.size.width
-              : toPx(state.size.width),
-          "--editor-height":
-            typeof state.size.height === "string"
-              ? state.size.height
-              : toPx(state.size.height),
-          "--editor-position-x":
-            typeof state.position.x === "string"
-              ? state.position.x
-              : toPx(state.position.x),
-          "--editor-position-y":
-            typeof state.position.y === "string"
-              ? state.position.y
-              : toPx(state.position.y),
-          "--editor-tab-size": styles.tabSize,
-          "--editor-line-height": styles.lineHeight,
-          "--editor-font-size": styles.font.size,
-          "--editor-font": styles.font.family,
-        } as React.CSSProperties
-      }
-    >
-      <style>{state.code}</style>
+    <>
+      <style id="stylizer-user-css">{compiledCss}</style>
 
-      <Draggable
-        handle="#stylizer_header"
-        nodeRef={dragRef}
-        position={{ x: positionX, y: positionY }}
-        onStop={(_, data) => {
-          actions.updatePosition({
-            x: toPx(data.x),
-            y: toPx(data.y),
-          });
-        }}
+      <PiPPortal
+        isOpen={state.isVisible}
+        onClose={actions.toggle}
+        width={parseInt(state.size.width)}
+        height={parseInt(state.size.height)}
       >
-        <div
-          ref={(el) => {
-            dragRef.current = el;
-            containerRef.current = el;
-          }}
-          className={css.editor + " main-embedWidgetGenerator-container"}
-          tabIndex={-1}
-          style={{
-            display: state.isVisible ? "flex" : "none",
-          }}
-        >
-          <div className={css.editor_content}>
-            <div className={css.editor_header} id="stylizer_header">
-              <EditorHeader onClose={actions.toggle} />
-              <EditorTabbar state={state} actions={actions} styles={styles} />
-            </div>
-
-            <div className={css.editor_body} id="stylizer_body">
-              <div
-                ref={editorRef}
-                className={css.editor_codejar}
-                style={{
-                  fontSize: styles.font.size,
-                  fontFamily: styles.font.family,
-                  lineHeight: styles.lineHeight,
-                  tabSize: styles.tabSize,
-                }}
-              />
-            </div>
+        <div className={css.editor_content}>
+          <div className={css.editor_header}>
+            <EditorHeader onClose={actions.toggle} />
+            <EditorTabbar state={state} actions={actions} styles={styles} />
           </div>
-
           <div
-            onMouseDown={handleResizeMouseDown}
+            className={css.editor_body}
+            ref={setContainerEl}
             style={{
-              width: 14,
-              height: 14,
-              position: "absolute",
-              right: 0,
-              bottom: 0,
-              cursor: "nwse-resize",
-              background: "#888",
-            }}
-          />
+              fontSize: styles.font.size,
+              fontFamily: styles.font.family,
+            }} />
         </div>
-      </Draggable>
-    </div>
+      </PiPPortal>
+    </>
   );
 };

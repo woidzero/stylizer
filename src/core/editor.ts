@@ -1,23 +1,20 @@
-const {
-  React: { useState, useRef, useMemo },
-} = Spicetify;
+const { React: { useState, useRef, useMemo } } = Spicetify;
 
 import { Settings } from "spcr-settings";
 import { KEYS, DEFAULTS, setupSettings } from "./settings";
 
 /**
- * Hook to manage settings persistence
+ * hook to manage settings persistence
  */
 export const useEditorSettings = (): Settings => {
   const settingsRef = useRef();
-
   if (!settingsRef.current) settingsRef.current = setupSettings();
 
   return settingsRef.current;
 };
 
 /**
- * Hook to manage editor state and actions
+ * hook to manage editor state and actions
  */
 export const useEditorState = (settings: Settings): _EditorProps => {
   const saveTimeout = useRef(null);
@@ -123,12 +120,12 @@ export const useEditorState = (settings: Settings): _EditorProps => {
 
       tabSize: String(
         settings.getFieldValue(KEYS.EDITOR_TAB_SIZE) ??
-          DEFAULTS.EDITOR_TAB_SIZE,
+        DEFAULTS.EDITOR_TAB_SIZE,
       ),
 
       lineHeight: String(
         settings.getFieldValue(KEYS.EDITOR_LINE_HEIGHT) ??
-          DEFAULTS.EDITOR_LINE_HEIGHT,
+        DEFAULTS.EDITOR_LINE_HEIGHT,
       ),
     };
   }, [settings]);

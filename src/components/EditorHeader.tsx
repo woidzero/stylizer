@@ -1,11 +1,37 @@
 const { React } = Spicetify;
 
 export const EditorHeader = ({ onClose }: { onClose: () => void }) => (
-  <div className="main-trackCreditsModal-header">
-    <h1 className="main-type-alto" data-encore-id="text">
-      Stylizer
-    </h1>
-    <button className="main-trackCreditsModal-closeBtn" onClick={onClose}>
+  <div className="main-trackCreditsModal-header" style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "var(--spice-main)",
+    width: "100%",
+    minWidth: 0,
+    boxSizing: "border-box",
+  } as React.CSSProperties}>
+    <div style={{
+      cursor: "move",
+      WebkitAppRegion: "drag",
+      flex: 1,
+      minWidth: 0,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      color: "white",
+    } as React.CSSProperties}>
+      <h1 className="main-type-alto" data-encore-id="text" >Stylizer</h1>
+    </div>
+    <button
+      className="main-trackCreditsModal-closeBtn"
+      tabIndex={-1}
+      onClick={onClose}
+      style={{
+        cursor: "pointer",
+        WebkitAppRegion: "no-drag",
+        flexShrink: 0,
+        marginLeft: "8px",
+      } as React.CSSProperties}>
       <svg
         data-encore-id="icon"
         role="img"

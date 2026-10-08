@@ -7,12 +7,12 @@ import { showChangelog } from "./core/utils";
 import { __VERSION__, __CHANGELOG__ } from "./generated/meta";
 
 export default async function main() {
-  let body;
+  let body: HTMLBodyElement | null;
 
   while (true) {
     body = document.querySelector("body");
 
-    if (Spicetify?.Platform?.History && body) break;
+    if (Spicetify?.Platform?.History && body && Spicetify?.Topbar) break;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
@@ -23,16 +23,21 @@ export default async function main() {
     editorRoot = document.createElement("div");
     editorRoot.id = "stylizer__root";
 
+    editorRoot.style.display = "none";
     body.prepend(editorRoot);
 
     ReactDOM.render(<Editor />, editorRoot);
     console.debug("[stylizer] editor rendered");
   }
 
+  new Spicetify.Topbar.Button(
+    "Stylizer",
+    "edit",
+    () => window.dispatchEvent(new CustomEvent("stylizer:toggle"))
+  );
+
   if (settings.getFieldValue(KEYS.VERSION) !== __VERSION__) {
     showChangelog();
     settings.setFieldValue(KEYS.VERSION, __VERSION__);
   }
 }
-
-main();

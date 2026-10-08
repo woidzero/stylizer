@@ -1,34 +1,33 @@
 const { React } = Spicetify;
-const { useState, useRef, useEffect } = React;
+const { useRef } = React;
 
 import { showChangelog } from "../core/utils";
+import { formatCode } from "../core/compiler";
 
 import css from "../assets/stylizer.module.scss";
 
+interface MenuItem {
+  label: string;
+  onClick?: () => void;
+  href?: string;
+  disabled?: boolean;
+  divider?: boolean;
+}
+
+interface MenuCategory {
+  title: string;
+  items: MenuItem[];
+}
+
 export const EditorTabbar = ({ state, actions }: _EditorProps) => {
-  const [openMenu, setOpenMenu] = useState(null);
-  const barRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (barRef.current && !barRef.current.contains(e.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleMenu = (menu: string) => {
-    setOpenMenu(openMenu === menu ? null : menu);
+  const handleFormat = async () => {
+    const formatted = await formatCode(state.code);
+    actions.updateCode(formatted);
   };
 
-  const handleOpen = () => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.click();
-  };
+  const handleOpenFile = () => fileInputRef.current?.click();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -40,105 +39,100 @@ export const EditorTabbar = ({ state, actions }: _EditorProps) => {
       actions.updateCode(text);
     };
     reader.readAsText(file);
-
     e.target.value = "";
-    setOpenMenu(null);
   };
 
   const handleSave = () => {
     const blob = new Blob([state.code], { type: "text/css" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "style.css";
     a.click();
     URL.revokeObjectURL(url);
-
-    setOpenMenu(null);
   };
 
+  const menuConfig: MenuCategory[] = [
+    {
+      title: "File",
+      items: [
+        { label: "Open", onClick: handleOpenFile },
+        { label: "Save", onClick: handleSave },
+        { label: "", divider: true },
+        { label: "Exit", onClick: () => actions.toggle() },
+      ],
+    },
+    {
+      title: "Edit",
+      items: [
+        { label: "Format Code", onClick: handleFormat },
+      ],
+    },
+    {
+      title: "Themes",
+      items: [
+        { label: "Work In Progress", disabled: true },
+      ],
+    },
+    {
+      title: "Help",
+      items: [
+        { label: "Issues", href: "https://github.com/woidzero/stylizer/issues" },
+        { label: "GitHub", href: "https://github.com/woidzero/stylizer" },
+        { label: "Website", href: "https://woid.im/" },
+        { label: "", divider: true },
+        { label: "Changelog", onClick: () => showChangelog() },
+      ],
+    },
+  ];
+
   return (
-    <div ref={barRef} className={css.editor_tabbar}>
+    <div className={css.editor_tabbar}>
       <input
         type="file"
-        accept=".css"
+        accept=".css, .scss, .sass"
         ref={fileInputRef}
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
 
-      <div className={css.editor_tabbar_item}>
-        <span onClick={() => toggleMenu("file")}>File</span>
+      {menuConfig.map((menu) => (
+        <div key={menu.title} className={css.editor_tabbar_item}>
+          <details>
+            <summary>{menu.title}</summary>
 
-        {openMenu === "file" && (
-          <div className={css.editor_tabbar_item_content}>
-            <ul>
-              <li id="stt_tabbar_open" onClick={handleOpen}>
-                Open
-              </li>
-              <li id="stt_save" onClick={handleSave}>
-                Save
-              </li>
-              <hr />
-              <li
-                id="stt_tabbar_exit"
-                onClick={() => {
-                  actions.toggle();
-                }}
-              >
-                Exit
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
+            <div className={css.editor_tabbar_item_content}>
+              <ul>
+                {menu.items.map((item, index) => {
+                  if (item.divider) {
+                    return <hr key={index} />;
+                  }
 
-      <div className={css.editor_tabbar_item}>
-        <span onClick={() => toggleMenu("preferences")}>Preferences</span>
+                  return (
+                    <li
+                      key={index}
+                      style={{
+                        color: item.disabled ? "gray" : undefined,
+                        cursor: item.disabled ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => {
+                        if (item.disabled) return;
+                        if (item.onClick) item.onClick();
+                        if (item.href) window.open(item.href, "_blank");
 
-        {openMenu === "preferences" && (
-          <div className={css.editor_tabbar_item_content}>
-            <ul>
-              <li
-                id="stt_tabbar_theme"
-                style={{
-                  color: "gray",
-                  display: "flex",
-                  gap: 5,
-                }}
-              >
-                Theme <span style={{ display: "inline-block" }}>(WIP)</span>
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
-
-      <div className={css.editor_tabbar_item}>
-        <span onClick={() => toggleMenu("help")}>Help</span>
-
-        {openMenu === "help" && (
-          <div className={css.editor_tabbar_item_content}>
-            <ul>
-              <li id="stt_tabbar_github">
-                <a target="_blank" href="https://github.com/woidzero/stylizer">
-                  GitHub
-                </a>
-              </li>
-              <li id="stt_tabbar_github">
-                <a target="_blank" href="https://discord.woid.world/">
-                  Discord
-                </a>
-              </li>
-              <hr />
-              <li id="stt_tabbar_github" onClick={() => showChangelog()}>
-                Changelog
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
+                        const details = document.querySelectorAll(`.${css.menu_details}`);
+                        details.forEach((d) => d.removeAttribute("open"));
+                      }}
+                    >
+                      {item.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </details>
+        </div>
+      ))}
     </div>
   );
 };

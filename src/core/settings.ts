@@ -1,11 +1,6 @@
 import { __CHANGELOG__, __VERSION__ } from "../generated/meta";
 import { Settings } from "spcr-settings";
 
-export const THEMES: Record<string, string> = {
-  "one-dark": "prism-one-dark.css",
-  "vscode-dark": "prism-vsc-dark-plus.css",
-};
-
 export const DEFAULTS = {
   EDITOR_POSITION: { x: "100px", y: "100px" },
   EDITOR_SIZE: { width: "600px", height: "400px" },
